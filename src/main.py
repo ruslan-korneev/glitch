@@ -1,3 +1,4 @@
-from fastapi import FastAPI
+from src.cli import run_bot
 
-app = FastAPI()
+if __name__ == "__main__":
+    run_bot()

@@ -1,0 +1,7 @@
+# gitlab
+GITLAB_HOST=gitlab.com
+GITLAB_APP_ID=
+GITLAB_APP_SECRET=
+
+# telegram
+AIOGRAM_TOKEN=

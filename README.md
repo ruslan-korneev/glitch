@@ -1,5 +1,10 @@
-# Gitlab Telegram Interface
-Managing issues and pull requests via telegram
+# GLITCH - GitLab Interface in Telegram Chat
+Version Control System via telegram, written in python
+
+- telegram bot - aiogram
+- web-application - fastapi
+- database - postgres
+- orm -sqlalchemy
 
 # Usage
 ...
@@ -9,6 +14,8 @@ Managing issues and pull requests via telegram
 git clone git@github.com:ruslan-korneev/gitlab-tg-interface.git
 cd gitlab-tg-interface
 
+cat env_sample > .env
+# change the values in `.env` which one do u need
 ```
 
 ## Locally for development
@@ -18,6 +25,9 @@ python3.11 -m venv .venv
 
 poetry install
 pre-commit install
+
+# commands description
+glitch --help
 ```
 
 ## Docker
