@@ -25,6 +25,7 @@ python3.11 -m venv .venv
 
 poetry install
 pre-commit install
+alembic upgrade head
 
 # commands description
 glitch --help
