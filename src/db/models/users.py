@@ -1,6 +1,6 @@
 from typing import Any
 
-from sqlalchemy import SmallInteger, String
+from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.db.models.base import CRUDModel
@@ -10,9 +10,9 @@ class User(CRUDModel):
     __tablename__ = "users"
 
     telegram_id: Mapped[int] = mapped_column(
-        SmallInteger, primary_key=True, autoincrement=False
+        Integer, primary_key=True, autoincrement=False
     )
-    gitlab_profile_id: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    gitlab_profile_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     username: Mapped[str | None] = mapped_column(String(64), nullable=True)
     first_name: Mapped[str | None] = mapped_column(String(64), nullable=True)
     last_name: Mapped[str | None] = mapped_column(String(64), nullable=True)
