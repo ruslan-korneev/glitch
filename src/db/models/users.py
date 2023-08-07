@@ -1,4 +1,7 @@
-from sqlalchemy import Column, SmallInteger, String
+from typing import Any
+
+from sqlalchemy import SmallInteger, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 from src.config.db import Base
 
@@ -6,8 +9,27 @@ from src.config.db import Base
 class User(Base):
     __tablename__ = "users"
 
-    telegram_id = Column(SmallInteger, primary_key=True, autoincrement=False)
-    gitlab_profile_id = Column(SmallInteger, nullable=True)
-    username = Column(String, nullable=True)
-    first_name = Column(String, nullable=True)
-    last_name = Column(String, nullable=True)
+    telegram_id: Mapped[int] = mapped_column(
+        SmallInteger, primary_key=True, autoincrement=False
+    )
+    gitlab_profile_id: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    username: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    first_name: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    last_name: Mapped[str | None] = mapped_column(String(64), nullable=True)
+
+    def __init__(
+        self,
+        *,
+        telegram_id: int,
+        gitlab_profile_id: int | None = None,
+        username: str | None = None,
+        first_name: str | None = None,
+        last_name: str | None = None,
+        **kw: Any
+    ) -> None:
+        self.telegram_id = telegram_id
+        self.gitlab_profile_id = gitlab_profile_id
+        self.username = username
+        self.first_name = first_name
+        self.last_name = last_name
+        return super().__init__(**kw)
