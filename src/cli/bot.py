@@ -1,20 +1,17 @@
+import asyncio
+
 import click
-from aiogram import asyncio
 from loguru import logger
 
-from src.services.bot import bot, dispatcher
+from src.config.bot import bot, dispatcher
 
 
 async def _run_bot():
     try:
-        logger.info("Bot Running")
-        await dispatcher.start_polling()
+        logger.info("Start Bot Long Polling")
+        await dispatcher.start_polling(bot)
     finally:
         await dispatcher.storage.close()
-        await dispatcher.storage.wait_closed()
-        session = await bot.get_session()
-        if session:
-            await session.close()
 
 
 @click.command("bot")

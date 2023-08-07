@@ -1,7 +1,3 @@
-from src.config.bot import bot, dispatcher
+from .routers import router
 
-from .handlers import register_handlers
-
-register_handlers(dispatcher)
-
-__all__ = ["bot", "dispatcher"]
+__all__ = ["router"]

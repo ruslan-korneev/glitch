@@ -1,10 +1,14 @@
-from aiogram import Dispatcher
+from aiogram import Router
+from aiogram.filters import Command
 from aiogram.types import Message
 
+router = Router()
 
-async def welcome(message: Message):
+
+@router.message(Command("start"))
+async def welcome(message: Message) -> None:
     user = message.from_user
-    if user.is_bot:
+    if not user or user.is_bot:
         return
 
     await message.answer(
@@ -12,7 +16,3 @@ async def welcome(message: Message):
             name=(user.full_name or user.username), user_id=user.id
         )
     )
-
-
-def register_handlers(dispatcher: Dispatcher):
-    dispatcher.register_message_handler(welcome, commands=["start"])

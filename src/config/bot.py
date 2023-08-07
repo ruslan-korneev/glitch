@@ -1,9 +1,11 @@
 from aiogram import Bot, Dispatcher
+from aiogram.enums import ParseMode
 
 from src.config.const import AIOGRAM_TOKEN
+from src.services.bot.routers import router
 
-# About MarkdownV2: https://core.telegram.org/bots/api#markdownv2-style
-bot = Bot(token=AIOGRAM_TOKEN, parse_mode="MarkdownV2")
-dispatcher = Dispatcher(bot)
+bot = Bot(token=AIOGRAM_TOKEN, parse_mode=ParseMode.MARKDOWN_V2)
+dispatcher = Dispatcher()
+dispatcher.include_router(router)
 
 __all__ = ["bot", "dispatcher"]
