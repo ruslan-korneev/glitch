@@ -43,9 +43,19 @@ AIOGRAM_TOKEN = os.environ.get("AIOGRAM_TOKEN", "")
 GITLAB_HOST = os.environ.get("GITLAB_HOST", "gitlab.com")
 GITLAB_APP_ID = os.environ.get("GITLAB_APP_ID", "")
 GITLAB_APP_SECRET = os.environ.get("GITLAB_APP_SECRET", "")
+GITLAB_CALLBACK_ENDPOINT = os.environ.get(
+    "GITLAB_CALLBACK_ENDPOINT", "/gitlab/callback"
+)
+GITLAB_REDIRECT_URI = (
+    BACKEND_URL.removesuffix("/")
+    + "/"
+    + API_V1_STR.removeprefix("/").removesuffix("/")
+    + "/"
+    + GITLAB_CALLBACK_ENDPOINT.removeprefix("/")
+)
 GITLAB_AUTH_URL = (
     f"https://{GITLAB_HOST}"
     f"/oauth/authorize?client_id={GITLAB_APP_ID}"
     "&response_type=code&state={state}"
-    f"&redirect_uri={BACKEND_URL}/api/v1/gitlab/callback"
+    f"&redirect_uri={GITLAB_REDIRECT_URI}"
 )

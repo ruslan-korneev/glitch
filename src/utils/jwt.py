@@ -16,6 +16,5 @@ def generate_jwt_token(user_id: int) -> str:
     )
 
 
-def decode_jwt_token(token: str) -> int:
-    payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-    return payload["user_id"]
+def decode_jwt_token(token: str) -> dict:
+    return jwt.decode(token, SECRET_KEY, algorithms=["HS256"])

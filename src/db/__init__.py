@@ -8,6 +8,12 @@ from src.db import models
 
 async def get_session() -> AsyncGenerator[AsyncSession, Any]:
     async with SessionLocal() as session:
-        yield session
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+        finally:
+            await session.close()
+
 
 __all__ = ["Base", "models", "get_session"]

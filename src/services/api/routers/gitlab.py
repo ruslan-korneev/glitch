@@ -1,60 +1,76 @@
+from http import HTTPStatus
+
 import jwt
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends
+from fastapi.exceptions import HTTPException
+from fastapi.responses import RedirectResponse
 from gitlab import Gitlab
-from sqlalchemy import select
+from gitlab.exceptions import GitlabAuthenticationError
+from loguru import logger
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import get_session
 from src.db.models import User
-from src.services.gitlab.interface import get_access_token
+from src.services.gitlab.auth import get_access_token
+from src.utils.bot import get_bot_username
 from src.utils.jwt import decode_jwt_token
 
 router = APIRouter()
 
 
-@router.get("/callback/")
+@router.get("/callback")
 async def gitlab_callback(
     code: str, state: str, session: AsyncSession = Depends(get_session)
 ):
     """
     After user authorized at gitlab application,
     that router should be called by gitlab redirection
+    after succed redirecting to telegram bot
     """
     try:
-        user_id = decode_jwt_token(state)
+        payload = decode_jwt_token(state)
     except jwt.ExpiredSignatureError:
-        return Response("not authorized", status_code=401)
+        # TODO: redirect to bot and send message in telegram if expired, ask user to authorize again
+        raise HTTPException(
+            HTTPStatus.UNAUTHORIZED,
+            {"token": "expired"},
+        )
     except jwt.InvalidSignatureError:
-        return Response("not authorized", status_code=401)
+        raise HTTPException(
+            HTTPStatus.UNAUTHORIZED,
+            {"token": "invalid"},
+        )
 
-    access_token_response = get_access_token(code)
+    access_token_response = get_access_token(code=code)
     gitlab = Gitlab(oauth_token=access_token_response["access_token"])
-    gitlab.user
     try:
         gitlab.auth()
-    except:
-        return Response("not authorized", status_code=401)
+    except GitlabAuthenticationError as e:
+        logger.error(e)
+        # TODO: redirect to bot and send message in telegram
+        raise e
 
-    query = select(User).filter(User.telegram_id == user_id)
-    result = await session.execute(query)
-    user: User = result.scalar_one()
+    if gitlab.user is None or not (gitlab_user_data := gitlab.user.asdict()):
+        raise GitlabAuthenticationError
 
-    if gitlab.user is not None and (gitlab_user_data := gitlab.user.asdict()):
-        user.gitlab_profile_id = gitlab_user_data["id"]
-        session.add(user)
-        await session.commit()
-        await session.refresh(user)
+    user = await User.get_by_pk(pk=payload["user_id"], session=session)
+    if not user:
+        raise HTTPException(
+            HTTPStatus.NOT_FOUND,
+            {"details": f"user: {payload['user_id']} not found"},
+        )
 
-    return {
-        "user": {
-            "tg_id": user.telegram_id,
-            "gitlab_profile_id": user.gitlab_profile_id,
-            "gitlab_oauth_token": code,
-            "username": user.username,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
-        },
-        "gitlab_user": gitlab.user.asdict() if gitlab.user else {},
-        "state": state,
-        "access_token_response": access_token_response,
-    }
+    await user.save_gitlab_token(
+        access_token=access_token_response["access_token"],
+        refresh_token=access_token_response["refresh_token"],
+        oauth_code=code,
+    )
+
+    user.gitlab_profile_id = gitlab_user_data["id"]
+    user = await user.save(session=session)
+
+    tg_bot_username = await get_bot_username()
+    return RedirectResponse(
+        f"https://t.me/{tg_bot_username}",
+        status_code=HTTPStatus.MOVED_PERMANENTLY,
+    )

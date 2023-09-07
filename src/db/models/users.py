@@ -1,9 +1,12 @@
 from typing import Any
+from gitlab import Gitlab
 
 from sqlalchemy import Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
+from src.config.redis import Redis
 
 from src.db.models.base import CRUDModel
+from src.services.gitlab.auth import get_access_token
 
 
 class User(CRUDModel):
@@ -33,3 +36,46 @@ class User(CRUDModel):
         self.first_name = first_name
         self.last_name = last_name
         return super().__init__(**kw)
+
+    async def save_gitlab_token(
+        self, access_token: str, refresh_token: str, oauth_code: str | None = None
+    ) -> None:
+        """Save gitlab access token"""
+        redis = Redis(self.telegram_id)
+        await redis.set("gitlab_access_token", access_token)
+        await redis.set("gitlab_refresh_token", refresh_token)
+        if oauth_code:
+            await redis.set("gitlab_oauth_code", oauth_code)
+
+    async def refresh_gitlab_token(self) -> str:
+        """Refresh gitlab access token"""
+        redis = Redis(self.telegram_id)
+        refresh_token = await redis.get("gitlab_refresh_token")
+        if not refresh_token:
+            oauth_code = await redis.get("gitlab_oauth_code")
+            if not oauth_code:
+                # TODO: ask user to authorize again
+                raise Exception
+            response = get_access_token(oauth_code=oauth_code)
+        else:
+            response = get_access_token(refresh_token=refresh_token)
+        await redis.set("gitlab_access_token", response["access_token"])
+        await redis.set("gitlab_refresh_token", response["refresh_token"])
+        return response["access_token"]
+
+    async def get_gitlab_token(self) -> str:
+        """Get gitlab access token"""
+        redis = Redis(self.telegram_id)
+        token = await redis.get("gitlab_access_token")
+        if not token:
+            token = await self.refresh_gitlab_token()
+
+        return token
+
+    @property
+    async def gitlab(self) -> Gitlab:
+        """Get gitlab instance with authenticated user"""
+        access_token = await self.get_gitlab_token()
+        gitlab = Gitlab(oauth_token=access_token)
+        gitlab.auth()
+        return gitlab

@@ -1,11 +1,10 @@
-from aiogram.types.inline_keyboard import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from src.config.const import GITLAB_AUTH_URL
 from src.utils.jwt import generate_jwt_token
 
 
-def get_welcome_keyboard(user_id):
-    welcome_keyboard = InlineKeyboardMarkup()
+def get_welcome_keyboard(user_id: int) -> InlineKeyboardMarkup:
     state = generate_jwt_token(user_id)
     url = GITLAB_AUTH_URL.format(state=state)
     gitlab_bind_button = InlineKeyboardButton(
@@ -14,6 +13,4 @@ def get_welcome_keyboard(user_id):
         callback_data=f"gitlab-connect:{user_id}",
     )
 
-    welcome_keyboard.add(gitlab_bind_button)
-
-    return welcome_keyboard
+    return InlineKeyboardMarkup(inline_keyboard=[[gitlab_bind_button]])
