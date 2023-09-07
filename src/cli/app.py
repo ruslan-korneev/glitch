@@ -1,6 +1,7 @@
 import click
 import uvicorn
-from fastapi import FastAPI
+
+from src.services.api import application
 
 
 @click.command("server")
@@ -8,5 +9,4 @@ from fastapi import FastAPI
 @click.option("--port", default=5000, help="on which port server will run")
 def run_application(host: str, port: int):
     """Run asynchronous web-application"""
-    app = FastAPI()
-    uvicorn.run(app, host=host, port=port)
+    uvicorn.run(application, host=host, port=port)
