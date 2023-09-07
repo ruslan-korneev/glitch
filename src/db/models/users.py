@@ -3,10 +3,10 @@ from typing import Any
 from sqlalchemy import SmallInteger, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.config.db import Base
+from src.db.models.base import CRUDModel
 
 
-class User(Base):
+class User(CRUDModel):
     __tablename__ = "users"
 
     telegram_id: Mapped[int] = mapped_column(
