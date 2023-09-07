@@ -41,7 +41,7 @@ class User(CRUDModel):
         self, access_token: str, refresh_token: str, oauth_code: str | None = None
     ) -> None:
         """Save gitlab access token"""
-        redis = Redis(self.telegram_id)
+        redis = Redis(self)
         await redis.set("gitlab_access_token", access_token)
         await redis.set("gitlab_refresh_token", refresh_token)
         if oauth_code:
@@ -49,7 +49,7 @@ class User(CRUDModel):
 
     async def refresh_gitlab_token(self) -> str:
         """Refresh gitlab access token"""
-        redis = Redis(self.telegram_id)
+        redis = Redis(self)
         refresh_token = await redis.get("gitlab_refresh_token")
         if not refresh_token:
             oauth_code = await redis.get("gitlab_oauth_code")
@@ -65,7 +65,7 @@ class User(CRUDModel):
 
     async def get_gitlab_token(self) -> str:
         """Get gitlab access token"""
-        redis = Redis(self.telegram_id)
+        redis = Redis(self)
         token = await redis.get("gitlab_access_token")
         if not token:
             token = await self.refresh_gitlab_token()

@@ -1,8 +1,11 @@
-from typing import cast
+from typing import Optional, cast, TYPE_CHECKING
 
 import redis.asyncio as redis
 
 from src.config.const import REDIS_DB, REDIS_HOST, REDIS_PORT
+
+if TYPE_CHECKING:
+    from src.db.models.users import User
 
 redis_client = redis.Redis(
     host=REDIS_HOST,
@@ -19,14 +22,14 @@ class Redis:
 
     client: redis.Redis
 
-    def __init__(self, user_id: int | None = None) -> None:
+    def __init__(self, user: Optional["User"] = None) -> None:
         self.client = redis_client
-        self.user = user_id
+        self.user_id = user.pk if user else None
 
     def _key(self, key: str) -> str:
         """Get redis key"""
-        if self.user is not None:
-            key = f"{self.user}:{key}"
+        if self.user_id is not None:
+            key = f"{self.user_id}:{key}"
         return key
 
     async def get(self, key: str, __default: str | None = None) -> str | None:
