@@ -77,5 +77,11 @@ class User(CRUDModel):
         """Get gitlab instance with authenticated user"""
         access_token = await self.get_gitlab_token()
         gitlab = Gitlab(oauth_token=access_token)
-        gitlab.auth()
+        try:
+            gitlab.auth()
+        except Exception:
+            access_token = await self.refresh_gitlab_token()
+            gitlab = Gitlab(oauth_token=access_token)
+            gitlab.auth()
+
         return gitlab
