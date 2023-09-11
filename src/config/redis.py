@@ -1,4 +1,4 @@
-from typing import Optional, cast, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, cast
 
 import redis.asyncio as redis
 

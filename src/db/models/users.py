@@ -1,10 +1,10 @@
 from typing import Any
+
 from gitlab import Gitlab
-
-from sqlalchemy import Integer, String
+from sqlalchemy import BigInteger, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
-from src.config.redis import Redis
 
+from src.config.redis import Redis
 from src.db.models.base import CRUDModel
 from src.services.gitlab.auth import get_access_token
 
@@ -13,7 +13,7 @@ class User(CRUDModel):
     __tablename__ = "users"
 
     telegram_id: Mapped[int] = mapped_column(
-        Integer, primary_key=True, autoincrement=False
+        BigInteger, primary_key=True, autoincrement=False
     )
     gitlab_profile_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
     username: Mapped[str | None] = mapped_column(String(64), nullable=True)
