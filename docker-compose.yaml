@@ -13,7 +13,7 @@ services:
     image: redis/redis-stack:latest
     env_file: .env
     ports:
-      - ${REDIS_PORT:-6379}:6379
+      - ${REDIS_EXTERNAL_PORT:-6379}:6379
 
   server:
     build: .
