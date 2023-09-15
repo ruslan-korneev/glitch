@@ -10,10 +10,11 @@ RUN apt-get install -y libssl-dev
 COPY . .
 
 RUN pip install -U poetry
-# ENV PATH="$HOME/.local/bin:$PATH"
 RUN /bin/true\
     && poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-dev \
     && rm -rf /root/.cache/pypoetry
+
+RUN ["./entrypoint.sh"]
 
 CMD ["poetry", "run", "glitch", "bot"]
