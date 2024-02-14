@@ -1,5 +1,5 @@
 # GLITCH - GitLab Interface in Telegram Chat
-Version Control System via telegram, written in python
+Gitlab Assistant in telegram
 
 - telegram bot - aiogram
 - web-application - fastapi
@@ -11,10 +11,10 @@ Version Control System via telegram, written in python
 
 # Installation
 ```bash
-git clone git@github.com:ruslan-korneev/gitlab-tg-interface.git
-cd gitlab-tg-interface
+git clone git@github.com:ruslan-korneev/glitch.git
+cd glitch
 
-cat env_sample > .env
+cat .env.example > .env
 # change the values in `.env` which one do u need
 ```
 
